@@ -73,6 +73,30 @@ if [[ "${WRT_TARGET^^}" == *"QUALCOMMAX"* ]]; then
 	#其他调整
 	echo "CONFIG_PACKAGE_kmod-usb-serial-qualcomm=y" >> ./.config
 fi
+
+# =========================================================
+# 注入 kenzok8/dllkids 自定义软件源 (仅限 apk 环境)
+# =========================================================
+echo "Setting up custom apk repository for dllkids-feed..."
+# 从编译好的 .config 中提取架构名称 (例如: aarch64_cortex-a53)
+TARGET_ARCH=$(grep -oP '^CONFIG_TARGET_ARCH_PACKAGES="\K[^"]+' ./.config)
+
+if [ -n "$TARGET_ARCH" ]; then
+	mkdir -p ./files/etc/apk/keys
+	mkdir -p ./files/etc/apk/repositories.d
+	
+	# 下载 dllkids 的 ECDSA 公钥
+	wget -qO ./files/etc/apk/keys/dllkids-feed.pub.pem "https://down.dllkids.xyz/openwrt-feed/keys/dllkids-feed.pub.pem"
+	chmod 644 ./files/etc/apk/keys/dllkids-feed.pub.pem
+	
+	# 写入自定义软件源列表 (使用 apk-tools v3 规范的 packages.adb)
+	echo "https://down.dllkids.xyz/openwrt-feed/25.12/${TARGET_ARCH}/packages.adb" > ./files/etc/apk/repositories.d/customfeeds.list
+	
+	echo "dllkids-feed for ${TARGET_ARCH} successfully injected into firmware."
+else
+	echo "Warning: Could not detect TARGET_ARCH, skipping dllkids-feed injection."
+fi
+
 #亚瑟修复USB2.0日志报错问题
 #wget -qO - https://github.com/davidtall/immortalwrt/commit/ce39feb4.patch | patch -p1
 #cat ./target/linux/qualcommax/dts/ipq6000-re-ss-01.dts
