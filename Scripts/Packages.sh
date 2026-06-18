@@ -129,9 +129,15 @@ UPDATE_VERSION() {
 
 
 #删除官方的默认插件
-rm -rf ../feeds/luci/applications/luci-app-{passwall*,mosdns,dockerman,dae*,bypass*}
-#rm -rf ../feeds/packages/net/{v2ray-geodata,dae*}
-rm -rf ../feeds/packages/net/{dae*}
+rm -rf ../feeds/luci/applications/luci-app-passwall*
+rm -rf ../feeds/luci/applications/luci-app-mosdns
+rm -rf ../feeds/luci/applications/luci-app-dockerman
+rm -rf ../feeds/luci/applications/luci-app-dae
+rm -rf ../feeds/luci/applications/luci-app-daed
+rm -rf ../feeds/luci/applications/luci-app-bypass*
+rm -rf ../feeds/packages/net/dae
+rm -rf ../feeds/packages/net/daed
+rm -rf ../feeds/packages/net/daed-next
 cp -r $GITHUB_WORKSPACE/package/* ./
 #修复libubox报错
 #sed -i '/include $(INCLUDE_DIR)\/cmake.mk/a PKG_BUILD_FLAGS:=no-werror' ../package/libs/libubox/Makefile
